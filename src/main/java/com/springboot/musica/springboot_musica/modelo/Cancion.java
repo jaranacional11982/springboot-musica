@@ -1,14 +1,35 @@
 package com.springboot.musica.springboot_musica.modelo;
 
+import jakarta.persistence.Id;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Table;
+
+@Entity 
+@Table(name = "canciones")
 public class Cancion {
+
+    @Id //Lave Primaria
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // Tipo Autoincremental
     private Long id;
+
+    @Column(nullable=false)
     private String titulo;
+
+    @Column(nullable = false)
     private String interprete;
+
+    @Column(nullable = false)
     private String genero;
 
+    // Constructor vacío para JPA/Hibernate
+    public Cancion() {
+    }
+
     // Constructor
-    public Cancion(Long id, String titulo, String interprete, String genero) {
-        this.id = id;
+    public Cancion(String titulo, String interprete, String genero) {
         this.titulo = titulo;
         this.interprete = interprete;
         this.genero = genero;

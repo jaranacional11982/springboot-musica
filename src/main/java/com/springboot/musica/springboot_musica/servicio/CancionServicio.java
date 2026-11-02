@@ -2,72 +2,63 @@ package com.springboot.musica.springboot_musica.servicio;
 
 import com.springboot.musica.springboot_musica.dto.CancionDTO;
 import com.springboot.musica.springboot_musica.modelo.Cancion;
+import com.springboot.musica.springboot_musica.repositorio.CancionRepositorio;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class CancionServicio {
     
-    private List<Cancion> listaDeCanciones = new ArrayList<>();
-    private Long siguienteId = 1L;
+    private final CancionRepositorio repositorioDeCanciones;
 
-    public CancionServicio() {
-        // Datos de prueba iniciales
-        listaDeCanciones.add(new Cancion(siguienteId++, "Flowers", "Miley Cyrus", "Pop"));
-        listaDeCanciones.add(new Cancion(siguienteId++, "Sugar", "System of a Down", "Rock"));
-        listaDeCanciones.add(new Cancion(siguienteId++, "La Rebelión", "Joe Arroyo", "Salsa"));
+    // Inyección del repositorio
+    public CancionServicio(CancionRepositorio repositorioDeCanciones) {
+        this.repositorioDeCanciones = repositorioDeCanciones;
     }
 
     public List<Cancion> obtenerTodasLasCanciones() {
-        return listaDeCanciones;
+        return repositorioDeCanciones.findAll(); // Busca en H2
     }
 
     public Optional<Cancion> obtenerCancionPorId(Long id) {
-        return listaDeCanciones.stream()
-                .filter(cancion -> cancion.getId().equals(id))
-                .findFirst();
+        return repositorioDeCanciones.findById(id); // Busca por ID en H2
     }
 
     public Cancion crearNuevaCancion(CancionDTO cancionRecibida) {
         Cancion nuevaCancion = new Cancion(
-            siguienteId++, 
             cancionRecibida.getTitulo(), 
             cancionRecibida.getInterprete(), 
             cancionRecibida.getGenero()
         );
-        listaDeCanciones.add(nuevaCancion);
-        return nuevaCancion;
+        return repositorioDeCanciones.save(nuevaCancion); // Guarda en la tabla H2
     }
 
     public boolean eliminarCancion(Long id) {
-        // removeIf recorre la lista y elimina el elemento que coincida con la condición
-        return listaDeCanciones.removeIf(cancion -> cancion.getId().equals(id));
+        if (repositorioDeCanciones.existsById(id)) {
+            repositorioDeCanciones.deleteById(id); // Borra de H2
+            return true;
+        }
+        return false;
     }
 
     public Optional<Cancion> actualizarCancion(Long id, CancionDTO datosActualizados) {
-        // Reutilizamos el método que ya teníamos para buscar la canción
-        Optional<Cancion> cancionExistente = obtenerCancionPorId(id);
+        Optional<Cancion> cancionExistente = repositorioDeCanciones.findById(id);
         
         if (cancionExistente.isPresent()) {
             Cancion cancion = cancionExistente.get();
-            // Actualizamos los datos
             cancion.setTitulo(datosActualizados.getTitulo());
             cancion.setInterprete(datosActualizados.getInterprete());
             cancion.setGenero(datosActualizados.getGenero());
             
-            return Optional.of(cancion);
+            // save() también actualiza si el registro ya tiene un ID existente
+            return Optional.of(repositorioDeCanciones.save(cancion)); 
         }
-        
-        // Si no existe, retornamos un Optional vacío
         return Optional.empty();
     }
 
     public List<Cancion> buscarCancionesPorGenero(String genero) {
-        return listaDeCanciones.stream()
-                .filter(cancion -> cancion.getGenero().equalsIgnoreCase(genero))
-                .toList();
+        return repositorioDeCanciones.findByGeneroIgnoreCase(genero); // Usa la consulta personalizada
     }
 }

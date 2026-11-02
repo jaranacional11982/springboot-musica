@@ -1,64 +1,58 @@
-# API REST de Música - Spring Boot 🎵
+# 🎵 API REST de Música - JPA e Hibernate
 
-Esta es una aplicación básica desarrollada en **Java y Spring Boot** que expone una API REST para gestionar una lista de música en memoria. Permite realizar operaciones CRUD (Crear, Leer, Actualizar, Eliminar) sobre una colección de canciones, manejando información como título, intérprete y género.
+## 📝 Descripción Breve de la API
+Esta es una API REST funcional que permite gestionar una biblioteca musical. Permite realizar operaciones CRUD (Crear, Leer, Actualizar y Eliminar) sobre un registro de canciones y cuenta con un endpoint especializado para filtrar canciones por su género.
 
-## 📌 Requerimientos Universitarios Cumplidos
+## 🎧 Contexto Seleccionado
+El contexto elegido para el proyecto es la gestión de música (Canciones). La entidad principal es `Cancion`, la cual persiste datos básicos como el título de la obra, el intérprete (artista o banda) y su género musical, sirviendo como núcleo para un sistema de catalogación de audio.
 
-Esta solución fue diseñada para cumplir con los siguientes requerimientos mínimos exigidos:
-
-- [x] Aplicación funcional desarrollada con **Java y Spring Boot**.
-- [x] Al menos un endpoint **GET** (Consultar todas las canciones).
-- [x] Un endpoint que utilice **@PathVariable** (Buscar, actualizar o eliminar por ID).
-- [x] Un endpoint que utilice **@RequestParam** (Filtrar canciones por género).
-- [x] Un endpoint **POST** que reciba información en formato JSON mediante **@RequestBody**.
-- [x] Uso de un **DTO** (`CancionDTO`) para representar y filtrar los datos recibidos por el cliente.
-- [x] Uso de **ResponseEntity** y códigos de estado HTTP coherentes (`200 OK`, `201 Created`, `204 No Content`, `404 Not Found`).
+## 🧑‍💻 Integrante
+- Diego Jaramillo
 
 ## 🛠️ Tecnologías Utilizadas
 
-* **Lenguaje:** Java
-* **Framework:** Spring Boot (Spring Web)
-* **Gestor de dependencias:** Maven
-* **Cliente de pruebas API:** Bruno / Postman
+- **Lenguaje:** Java
+- **Framework:** Spring Boot (Spring Web)
+- **Persistencia:** Spring Data JPA / Hibernate
+- **Base de Datos:** H2 Database (In-Memory)
+- **Cliente de pruebas:** Bruno / Postman
 
 ## 📁 Estructura del Proyecto
 
 El código fuente principal se encuentra bajo el paquete `com.springboot.musica.springboot_musica` y se divide en las siguientes capas:
 
 * `modelo/`: Contiene la entidad principal `Cancion.java`.
+* `repositorio/`: Contiene el Spring Data JPA `CancionRepositorio.java`
 * `dto/`: Contiene el objeto de transferencia de datos `CancionDTO.java`.
 * `servicio/`: Contiene la lógica de negocio y la base de datos en memoria en `CancionServicio.java`.
 * `controlador/`: Expone los endpoints REST a través de `CancionControlador.java`.
 
-## 🚀 Cómo ejecutar la aplicación
+## 🚀 Instrucciones Básicas para Ejecutar el Proyecto
+1. Asegúrate de tener Java instalado en tu sistema.
+2. Descarga o clona el código fuente.
+3. Abre una terminal en la raíz del proyecto.
+4. Ejecuta el comando: `./mvnw spring-boot:run` (Linux/Mac) o `mvnw.cmd spring-boot:run` (Windows).
+5. La aplicación arrancará en el puerto 8080. 
+6. Puedes visualizar la consola de la base de datos H2 ingresando desde tu navegador a `http://localhost:8080/h2-console` (Usuario: `sa`, sin contraseña, JDBC URL: `jdbc:h2:mem:musicadb`).
 
-1. Clona este repositorio o descarga el código fuente.
-2. Abre una terminal en la raíz del proyecto.
-3. Ejecuta el siguiente comando usando el Wrapper de Maven incluido:
-   - En Windows: `mvnw.cmd spring-boot:run`
-   - En Linux/Mac: `./mvnw spring-boot:run`
-4. La aplicación se iniciará en el puerto **8080** (`http://localhost:8080`).
+## 📡 Listado de los Principales Endpoints (Ruta base: `/api/canciones`)
 
-*(Nota: La aplicación inicia con 2 canciones cargadas por defecto en memoria para facilitar las pruebas).*
-
-## 📡 Endpoints de la API
-
-La ruta base para todas las peticiones es: `http://localhost:8080/api/canciones`
-
-| Método | Endpoint | Descripción | Código HTTP de Éxito |
+| Operación                  | Método   | Endpoint                                | HTTP Status |
 | :--- | :--- | :--- | :--- |
-| **GET** | `/api/canciones` | Obtiene la lista de todas las canciones. | `200 OK` |
-| **GET** | `/api/canciones/{id}` | Busca una canción específica por su ID (Usa `@PathVariable`). | `200 OK` (ó `404 Not Found`) |
-| **GET** | `/api/canciones/buscar?genero={genero}`| Filtra canciones por su género (Usa `@RequestParam`). | `200 OK` (ó `204 No Content`) |
-| **POST** | `/api/canciones` | Crea una nueva canción. Requiere JSON en el Body. | `201 Created` |
-| **PUT** | `/api/canciones/{id}` | Actualiza una canción existente por su ID. Requiere JSON en el Body. | `200 OK` (ó `404 Not Found`) |
-| **DELETE**| `/api/canciones/{id}` | Elimina una canción por su ID. | `204 No Content` (ó `404 Not Found`) |
+| **Consultar Todos**        | `GET`    | `/api/canciones`                        | `200 OK` |
+| **Consultar por ID**       | `GET`    | `/api/canciones/{id}`                   | `200 OK` / `404 Not Found` |
+| **Búsqueda Personalizada**  | `GET`   | `/api/canciones/buscar?genero={genero}` | `200 OK` / `204 No Content` |
+| **Crear Registro**         | `POST`   | `/api/canciones`                        | `201 Created` |
+| **Actualizar Registro**    | `PUT`    | `/api/canciones/{id}`                   | `200 OK` / `404 Not Found` |
+| **Eliminar Registro**      | `DELETE` | `/api/canciones/{id}`                   | `204 No Content` / `404 Not Found` |
 
 ## 📄 Formato JSON (Payload)
 
 Para los endpoints **POST** y **PUT**, debes enviar el cuerpo de la petición (Body) en formato JSON estructurado según el `CancionDTO`. 
 
-**Ejemplo de creación de canción:**
+**Petición POST para Crear una Canción:**
+- **URL:** `http://localhost:8080/api/canciones`
+- **Body (JSON):**
 ```json
 {
   "titulo": "La Camisa Negra",
